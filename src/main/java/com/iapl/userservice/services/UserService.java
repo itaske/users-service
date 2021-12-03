@@ -1,5 +1,6 @@
 package com.iapl.userservice.services;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.iapl.userservice.dto.RequestParam;
@@ -49,14 +50,14 @@ public class UserService {
 
     }
 
-    private static List<UserDTO> retrieveProxyUsers(){
+    private List<UserDTO> retrieveProxyUsers(){
 
-      RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Object[]> responseEntity = restTemplate.getForEntity(PROXY_URL, Object[].class);
 
         Object[] objects = responseEntity.getBody();
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return Arrays.stream(objects)
                 .map(object -> mapper.convertValue(object, User.class))
                 .map(user -> UserDTO.convertUserToDTO(user))
@@ -64,8 +65,5 @@ public class UserService {
 
     }
 
-    public static void main(String args[]){
-        System.out.println(retrieveProxyUsers());
-    }
 
 }
